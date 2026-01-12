@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STANY BETS | iOS 26 Premium</title>
+    
+    <!-- Icons & Fonts -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --ios-red: #FF3B30;
+            --neon: 0 0 20px rgba(255, 59, 48, 0.4);
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.12);
+        }
+
+        /* ANTI-COPY SYSTEM */
+        * {
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+            -webkit-user-select: none;
+            user-select: none;
+            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .allow-copy {
+            -webkit-user-select: text !important;
+            user-select: text !important;
+        }
+
+        body { 
+            background: #000; 
+            background-image: radial-gradient(circle at 50% -20%, #440000 0%, #000 70%);
+            color: #fff; margin: 0; min-height: 100vh; overflow-x: hidden;
+        }
+
+        .container { max-width: 480px; margin: auto; padding: 20px; }
+        .hidden { display: none !important; }
+
+        /* --- AUTHENTICATION INTERFACE --- */
+        .auth-wrapper {
+            height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;
+        }
+        .auth-card {
+            width: 100%; max-width: 380px; background: var(--glass); 
+            border: 1px solid var(--glass-border); padding: 40px 30px; 
+            border-radius: 40px; backdrop-filter: blur(30px); text-align: center;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+        }
+        .logo-box { font-size: 2.8rem; font-weight: 800; margin-bottom: 10px; }
+        .logo-box span { color: var(--ios-red); text-shadow: var(--neon); }
+
+        input {
+            width: 100%; padding: 18px; margin: 12px 0; border-radius: 18px;
+            border: 1px solid var(--glass-border); background: rgba(0,0,0,0.6);
+            color: #fff; font-size: 1rem; outline: none;
+        }
+        input:focus { border-color: var(--ios-red); background: rgba(0,0,0,0.8); }
+
+        .btn-action {
+            width: 100%; padding: 18px; background: var(--ios-red); border: none;
+            border-radius: 20px; color: #fff; font-weight: 800; font-size: 1.1rem;
+            cursor: pointer; box-shadow: var(--neon); margin-top: 20px;
+        }
+        .auth-toggle { margin-top: 25px; font-size: 0.9rem; color: #888; }
+        .auth-toggle span { color: var(--ios-red); cursor: pointer; font-weight: 600; text-decoration: underline; }
+
+        /* --- MAIN APPLICATION INTERFACE --- */
+        header {
+            padding: 30px 20px; display: flex; justify-content: space-between; align-items: center;
+            backdrop-filter: blur(25px); position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid var(--glass-border); background: rgba(0,0,0,0.7);
+        }
+        .logo-sm { font-size: 1.5rem; font-weight: 800; }
+        .logo-sm span { color: var(--ios-red); }
+
+        .tabs {
+            display: flex; background: var(--glass); padding: 6px; border-radius: 20px;
+            margin: 25px 0; border: 1px solid var(--glass-border);
+        }
+        .tab {
+            flex: 1; padding: 14px; text-align: center; border-radius: 16px;
+            cursor: pointer; font-weight: 600; color: #666; font-size: 0.95rem;
+        }
+        .tab.active { background: var(--ios-red); color: #fff; box-shadow: var(--neon); }
+
+        /* TIP CARD DESIGN */
+        .tip-card {
+            background: var(--glass); border: 1px solid var(--glass-border);
+            border-radius: 35px; padding: 25px; margin-bottom: 25px;
+            position: relative; backdrop-filter: blur(20px);
+        }
+        .status-pill {
+            position: absolute; top: 20px; right: 20px; padding: 6px 16px;
+            border-radius: 30px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase;
+        }
+        .st-pending { background: #FFD60A; color: #000; }
+        .st-win { background: #34C759; color: #000; }
+        .st-lost { background: #555; color: #fff; }
+        .st-live { background: var(--ios-red); color: #fff; animation: pulse 1.2s infinite; box-shadow: var(--neon); }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+
+        .match-date { font-size: 0.8rem; color: #666; margin-bottom: 10px; font-weight: 600; display: flex; align-items: center; gap: 5px; }
+        .match-name { font-size: 1.4rem; font-weight: 800; margin-bottom: 12px; line-height: 1.2; letter-spacing: -0.5px; }
+        .match-tip { font-size: 1rem; color: #bbb; margin-bottom: 20px; }
+        .match-tip b { color: var(--ios-red); font-weight: 700; }
+
+        /* BOOKING ROW */
+        .booking-row {
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 22px; padding: 15px 20px; margin-top: 12px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .b-brand { font-size: 0.7rem; color: #555; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+        .b-code { font-family: 'Outfit', sans-serif; font-size: 1.4rem; font-weight: 800; color: #fff; }
+        
+        .btn-copy {
+            background: var(--ios-red); color: #fff; width: 48px; height: 48px;
+            border-radius: 16px; border: none; cursor: pointer; 
+            display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+            box-shadow: var(--neon);
+        }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+
+    <!-- AUTHENTICATION SCREEN -->
+    <div id="auth-screen" class="auth-wrapper">
+        <div class="auth-card">
+            <div class="logo-box">STANY<span>BETS</span></div>
+            
+            <!-- Login Form -->
+            <div id="login-form">
+                <h3 style="margin-bottom: 20px;">Welcome Back</h3>
+                <input type="email" id="login-email" placeholder="Email Address">
+                <input type="password" id="login-pass" placeholder="Password">
+                <button class="btn-action" onclick="loginUser()">LOGIN</button>
+                <div class="auth-toggle">New here? <span onclick="toggleAuth(false)">Create Account</span></div>
+            </div>
+
+            <!-- Register Form -->
+            <div id="register-form" class="hidden">
+                <h3 style="margin-bottom: 20px;">Join Premium</h3>
+                <input type="email" id="reg-email" placeholder="Email Address">
+                <input type="password" id="reg-pass" placeholder="Create Password">
+                <button class="btn-action" onclick="registerUser()">SIGN UP</button>
+                <div class="auth-toggle">Already member? <span onclick="toggleAuth(true)">Log In</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP SCREEN -->
+    <div id="app-screen" class="hidden">
+        <header>
+            <div class="logo-sm">STANY<span>BETS</span></div>
+            <button onclick="logout()" style="background:none; border:none; color:#444; font-size:1.4rem; cursor:pointer;">
+                <i class="fa-solid fa-circle-user"></i>
+            </button>
+        </header>
+
+        <div class="container">
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('active')">Predictions</div>
+                <div class="tab" onclick="switchTab('history')">History</div>
+            </div>
+
+            <div id="tips-list">
+                <!-- Tips inject here -->
+            </div>
+            
+            <div id="empty-state" class="hidden" style="text-align:center; padding:80px 20px; color:#333;">
+                <i class="fa-solid fa-layer-group fa-4x" style="margin-bottom: 20px;"></i>
+                <p>Stay tuned! Expert tips are coming soon.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, query, orderBy, onSnapshot, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBKkIC8q_e_tWNEvmICxXWyy94uh75hxxc",
+            authDomain: "stany-bets.firebaseapp.com",
+            projectId: "stany-bets",
+            storageBucket: "stany-bets.firebasestorage.app",
+            messagingSenderId: "195557644728",
+            appId: "1:195557644728:web:3f45aef8e81d522fad574d",
+            measurementId: "G-SJRY0VNB8Z"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // --- AUTH UI TOGGLE ---
+        window.toggleAuth = (showLogin) => {
+            document.getElementById('login-form').classList.toggle('hidden', !showLogin);
+            document.getElementById('register-form').classList.toggle('hidden', showLogin);
+        };
+
+        // --- AUTH OPERATIONS ---
+        window.loginUser = async () => {
+            const e = document.getElementById('login-email').value, p = document.getElementById('login-pass').value;
+            if(!e || !p) return alert("Please fill your credentials");
+            try { await signInWithEmailAndPassword(auth, e, p); } catch(err) { alert("Invalid email or password"); }
+        };
+
+        window.registerUser = async () => {
+            const e = document.getElementById('reg-email').value, p = document.getElementById('reg-pass').value;
+            if(p.length < 6) return alert("Password must be at least 6 characters");
+            try {
+                const res = await createUserWithEmailAndPassword(auth, e, p);
+                // Save user to database for Admin to track
+                await setDoc(doc(db, "users", res.user.uid), {
+                    email: e,
+                    joined: new Date().toISOString()
+                });
+                alert("Account created successfully!");
+            } catch(err) { alert(err.message); }
+        };
+
+        window.logout = () => { if(confirm("Do you want to sign out?")) signOut(auth); };
+
+        onAuthStateChanged(auth, u => {
+            if(u) {
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('app-screen').classList.remove('hidden');
+                loadTips();
+            } else {
+                document.getElementById('auth-screen').classList.remove('hidden');
+                document.getElementById('app-screen').classList.add('hidden');
+            }
+        });
+
+        // --- RENDER LOGIC ---
+        let currentTab = 'active', allTips = [];
+
+        window.switchTab = (t) => {
+            currentTab = t;
+            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+            event.target.classList.add('active');
+            render();
+        };
+
+        function loadTips() {
+            onSnapshot(query(collection(db, "tips"), orderBy("time", "desc")), snap => {
+                allTips = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                render();
+            });
+        }
+
+        function render() {
+            const container = document.getElementById('tips-list');
+            container.innerHTML = "";
+            const now = new Date().getTime();
+
+            const filtered = allTips.filter(t => {
+                if(currentTab === 'history') return (t.status === 'WIN' || t.status === 'LOST');
+                return (t.status === 'PENDING' || t.status === 'LIVE');
+            });
+
+            if(filtered.length === 0) {
+                document.getElementById('empty-state').classList.remove('hidden');
+                return;
+            } else {
+                document.getElementById('empty-state').classList.add('hidden');
+            }
+
+            filtered.forEach(t => {
+                let status = t.status || 'PENDING';
+                const mTime = new Date(t.matchTime).getTime();
+                if(status === 'PENDING' && now >= mTime) status = 'LIVE';
+
+                let bookingsHtml = "";
+                t.bookings?.forEach(b => {
+                    bookingsHtml += `
+                        <div class="booking-row">
+                            <div class="b-info">
+                                <div class="b-brand">${b.site}</div>
+                                <div class="b-code allow-copy">${b.code}</div>
+                            </div>
+                            <button class="btn-copy" onclick="copyCode('${b.code}')">
+                                <i class="fa-solid fa-copy"></i>
+                            </button>
+                        </div>`;
+                });
+
+                container.innerHTML += `
+                    <div class="tip-card">
+                        <div class="status-pill st-${status.toLowerCase()}">${status}</div>
+                        <div class="match-date"><i class="fa-regular fa-calendar-check"></i> ${t.matchTime?.replace('T',' ')}</div>
+                        <div class="match-name">${t.match}</div>
+                        <div class="match-tip">Prediction: <b>${t.prediction}</b></div>
+                        ${bookingsHtml}
+                    </div>`;
+            });
+        }
+
+        window.copyCode = (text) => {
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = event.target.closest('button');
+                btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+                setTimeout(() => btn.innerHTML = '<i class="fa-solid fa-copy"></i>', 2000);
+            });
+        };
+
+        // Anti-Copy Shortcut Protection
+        document.onkeydown = (e) => {
+            if(e.ctrlKey && (e.key === 'u' || e.key === 's' || e.key === 'c' || e.key === 'i' || e.key === 'j')) return false;
+        };
+    </script>
+</body>
+</html>
